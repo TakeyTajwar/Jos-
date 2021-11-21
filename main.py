@@ -80,6 +80,8 @@ async def on_raw_reaction_add(reaction):
 		msg = message.content
 		if(len(msg)>64):
 			msg = msg[0:60] + '...'
+		elif(len(msg)<1):
+			msg = "<press here to jump to the message>"
 		
 		embed=discord.Embed(color=0x3b874a)
 		embed.add_field(name=message.author, value=f"[{msg}](<https://discord.com/channels/911794251703144508/{reaction_msg_chn_id}/{reaction_msg_id}>)", inline=False)
