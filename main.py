@@ -66,17 +66,24 @@ async def on_raw_reaction_add(reaction):
 	reaction_emoji = reaction.emoji
 	reaction_msg_id = reaction.message_id
 	reaction_msg_chn_id = reaction.channel_id
+	reaction_msg_sender_id = reaction.user_id
 
 	print(reaction_emoji)
 
 	if(str(reaction.emoji) == "<:bookmarkmsg:912040565720350731>"):
-		bookmark_msg_chn = client.get_channel(912039171718250586)
 		message = await client.get_channel(reaction_msg_chn_id).fetch_message(reaction_msg_id)
+		sender = client.get_user(reaction_msg_sender_id)
+
+		await message.remove_reaction(reaction_emoji, sender)
+
+		bookmark_msg_chn = client.get_channel(912039171718250586)
 		msg = message.content
 		if(len(msg)>64):
 			msg = msg[0:60] + '...'
-
-		await bookmark_msg_chn.send(f"```py\n'{msg}'\n```\n<https://discord.com/channels/911794251703144508/{reaction_msg_chn_id}/{reaction_msg_id}>") # server_id/channel_id/message_id
+		
+		embed=discord.Embed(color=0x3b874a)
+		embed.add_field(name=message.author, value=f"[{msg}](<https://discord.com/channels/911794251703144508/{reaction_msg_chn_id}/{reaction_msg_id}>)", inline=False)
+		await bookmark_msg_chn.send(embed=embed)
 
 
 
