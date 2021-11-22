@@ -115,27 +115,30 @@ async def send_embed(embed, chn_id):
 def imdb_film_embed(link):
 	# bs4
 	soup = BeautifulSoup(requests.get(link).content, "html.parser")
+	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-hdn81t-0 iGxbgr"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
 
 	# embed
 	film_title = soup.find("h1", {'data-testid': "hero-title-block__title"}).get_text()
 	film_description = soup.find("span", {'data-testid': "plot-l"}).get_text()
-	# film_icon = ""
+	film_icon = soup.find("div", {'class': r"Media__PosterContainer-sc-1x98dcb-1 dGdktI"}).find('img')['src']
 	film_year = soup.find("a", {'class': r"ipc-link ipc-link--baseAlt ipc-link--inherit-color TitleBlockMetaData__StyledTextLink-sc-12ein40-1 rgaOW"}).get_text()
-	# film_duration = soup.find("a", {'class': r"ipc-inline-list__item", 'role': "presentation"})
-	film_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"}).get_text()
-	film_director = soup.find("a", {'class': r"ipc-metadata-list-item__list-content-item ipc-metadata-list-item__list-content-item--link"}).get_text()
-	film_writers = soup.find("div", {'class': r"ipc-metadata-list-item__content-container"}).get_text()
-	film_stars = soup.find("ul", {'class': r"ipc-inline-list ipc-inline-list--show-dividers ipc-inline-list--inline ipc-metadata-list-item__list-content baseAlt"}).get_text()
+	film_duration = soup.find("div", {'class': r"TitleBlock__TitleMetaDataContainer-sc-1nlhx7j-2 hWHMKr"}).findChildren("li", recursive=True)[-1].get_text()
+	film_genres = [item.get_text() for item in soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"}).findAll('a')]
+	film_director = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	film_writers = str([item.get_text() for item in soup_credits[1].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	film_stars = str([item.get_text() for item in soup_credits[2].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	film_tl = soup.find("section", {'data-testid': "Storyline"}).find("span", {'class': "ipc-metadata-list-item__list-content-item"}).get_text()
 
 	embed=discord.Embed(title=film_title, url=link, description=film_description, color=0xdeb522)
 	embed.set_author(name="IMDB", url=link, icon_url=r"https://static-s.aa-cdn.net/img/ios/342792525/42b815c1b75b4bcb107806c6eb3f0fb3?v=1")
-	# embed.set_thumbnail(url=film_icon)
+	embed.set_thumbnail(url=film_icon)
 	embed.add_field(name="Year", value=film_year, inline=False)
-	# embed.add_field(name="Duration", value=film_duration, inline=False)
+	embed.add_field(name="Duration", value=film_duration, inline=False)
 	embed.add_field(name="Genres", value=film_genres, inline=False)
 	embed.add_field(name="Director", value=film_director, inline=False)
 	embed.add_field(name="Writers", value=film_writers, inline=False)
 	embed.add_field(name="Stars", value=film_stars, inline=False)
+	embed.add_field(name="Tagline", value=film_tl, inline=False)
 	return(embed)
 
 
