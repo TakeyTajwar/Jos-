@@ -53,6 +53,8 @@ async def on_message(message):
 	
 	msg = message.content
 
+	chn_id = message.channel.id
+
 	print(msg)
 
 	await check_for_stats(msg)
@@ -62,14 +64,20 @@ async def on_message(message):
 		911828737270616164, # stats
 		912039171718250586, # messages
 	]
-	if(message.channel.id in bots_only_channels):
+	if(chn_id in bots_only_channels):
 		await message.delete()
 		return
 	
 	# functions for different channels
-	if(message.channel.id == 911794506570035260): # films
+	if(chn_id == 911794506570035260): # films
 		if(msg.startswith(r"https://www.imdb.com/title/")):
-			await send_embed(imdb_film_embed(msg), 911794506570035260)
+			await send_embed(await imdb_film_embed(msg), 911794506570035260)
+			await message.delete()
+			return
+	
+	elif(chn_id == 911794548001349663):
+		if(msg.startswith(r"https://www.imdb.com/title/")):
+			await send_embed(await imdb_series_embed(msg), 911794548001349663)
 			await message.delete()
 			return
 
@@ -112,7 +120,7 @@ async def send_embed(embed, chn_id):
 	await chn.send(embed=embed)
 
 # IMDB film embed
-def imdb_film_embed(link):
+async def imdb_film_embed(link):
 	# bs4
 	soup = BeautifulSoup(requests.get(link).content, "html.parser")
 	
@@ -151,6 +159,60 @@ def imdb_film_embed(link):
 	embed.add_field(name="Writers", value=film_writers, inline=False)
 	embed.add_field(name="Stars", value=film_stars, inline=False)
 	embed.add_field(name="Tagline", value=film_tl, inline=False)
+	return(embed)
+
+# IMDB series embed
+async def imdb_series_embed(link):
+	# bs4
+	soup = BeautifulSoup(requests.get(link).content, "html.parser")
+	
+	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-hdn81t-0 iGxbgr"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
+	
+	soup_poster = soup.find("div", {'class': "ipc-poster ipc-poster--baseAlt ipc-poster--dynamic-width Poster__CelPoster-sc-6zpm25-0 kPdBKI celwidget ipc-sub-grid-item ipc-sub-grid-item--span-2"}).find("img")
+	if(soup_poster == None):
+		soup.find("div", {'class': "Hero__MediaContainer__NoVideo-kvkd64-7 ytFvJ"}).find("img")
+	
+	soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"})
+	if(soup_genres == None):
+		soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__OffsetChipList-cum89p-5 dMcpOf"})
+	
+	soup_orignal_title = soup.find("div", {'data-testid': "hero-title-block__original-title"})
+
+	# embed
+	series_title = soup.find("h1", {'data-testid': "hero-title-block__title"}).get_text()
+	series_description = soup.find("span", {'data-testid': "plot-l"}).get_text()
+	series_icon = soup_poster['src']
+	series_year = soup.find("a", {'class': r"ipc-link ipc-link--baseAlt ipc-link--inherit-color TitleBlockMetaData__StyledTextLink-sc-12ein40-1 rgaOW"}).get_text()
+	series_seasons = soup.find("select", {'id': "browse-episodes-season"})
+	series_duration = soup.find("div", {'class': r"TitleBlock__TitleMetaDataContainer-sc-1nlhx7j-2 hWHMKr"}).findChildren("li", recursive=True)[-1].get_text()
+	series_language = soup.find("li", {'data-testid': "title-details-languages"}).find("a").get_text()
+	try:
+		series_genres = [item.get_text() for item in soup_genres.findAll('a')]
+	except:
+		series_genres = [item.get_text() for item in soup_genres.findAll('a')]
+	if(len(soup_credits)>1):
+		series_creators = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+		series_stars = str([item.get_text() for item in soup_credits[1].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	else:
+		series_creators = None
+		series_stars = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	series_tl = soup.find("section", {'data-testid': "Storyline"}).find("span", {'class': "ipc-metadata-list-item__list-content-item"}).get_text()
+
+	embed=discord.Embed(title=series_title, url=link, description=series_description, color=0xdeb522)
+	embed.set_author(name="IMDB", url=link, icon_url=r"https://static-s.aa-cdn.net/img/ios/342792525/42b815c1b75b4bcb107806c6eb3f0fb3?v=1")
+	embed.set_thumbnail(url=series_icon)
+	embed.add_field(name="Year", value=series_year, inline=False)
+	if(series_seasons):
+		embed.add_field(name="Seasons", value=series_seasons['aria-label'], inline=False)
+	embed.add_field(name="Duration", value=series_duration, inline=False)
+	embed.add_field(name="Language", value=series_language, inline=False)
+	embed.add_field(name="Genres", value=series_genres, inline=False)
+	if(series_creators):
+		embed.add_field(name="Creators", value=series_creators, inline=False)
+	embed.add_field(name="Stars", value=series_stars, inline=False)
+	embed.add_field(name="Tagline", value=series_tl, inline=False)
+	if(soup_orignal_title):
+		embed.set_footer(text=soup_orignal_title.get_text())
 	return(embed)
 
 
