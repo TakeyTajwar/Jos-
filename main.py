@@ -115,15 +115,27 @@ async def send_embed(embed, chn_id):
 def imdb_film_embed(link):
 	# bs4
 	soup = BeautifulSoup(requests.get(link).content, "html.parser")
+	
 	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-hdn81t-0 iGxbgr"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
+	
+	soup_poster = soup.find("div", {'class': "ipc-poster ipc-poster--baseAlt ipc-poster--dynamic-width Poster__CelPoster-sc-6zpm25-0 kPdBKI celwidget ipc-sub-grid-item ipc-sub-grid-item--span-2"}).find("img")
+	if(soup_poster == None):
+		soup.find("div", {'class': "Hero__MediaContainer__NoVideo-kvkd64-7 ytFvJ"}).find("img")
+	
+	soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"})
+	if(soup_genres == None):
+		soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__OffsetChipList-cum89p-5 dMcpOf"})
 
 	# embed
 	film_title = soup.find("h1", {'data-testid': "hero-title-block__title"}).get_text()
 	film_description = soup.find("span", {'data-testid': "plot-l"}).get_text()
-	film_icon = soup.find("div", {'class': r"Media__PosterContainer-sc-1x98dcb-1 dGdktI"}).find('img')['src']
+	film_icon = soup_poster['src']
 	film_year = soup.find("a", {'class': r"ipc-link ipc-link--baseAlt ipc-link--inherit-color TitleBlockMetaData__StyledTextLink-sc-12ein40-1 rgaOW"}).get_text()
 	film_duration = soup.find("div", {'class': r"TitleBlock__TitleMetaDataContainer-sc-1nlhx7j-2 hWHMKr"}).findChildren("li", recursive=True)[-1].get_text()
-	film_genres = [item.get_text() for item in soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"}).findAll('a')]
+	try:
+		film_genres = [item.get_text() for item in soup_genres.findAll('a')]
+	except:
+		film_genres = [item.get_text() for item in soup_genres.findAll('a')]
 	film_director = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
 	film_writers = str([item.get_text() for item in soup_credits[1].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
 	film_stars = str([item.get_text() for item in soup_credits[2].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
