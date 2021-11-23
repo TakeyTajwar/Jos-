@@ -196,7 +196,7 @@ async def imdb_series_embed(link):
 	else:
 		series_creators = None
 		series_stars = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
-	series_tl = soup.find("section", {'data-testid': "Storyline"}).find("span", {'class': "ipc-metadata-list-item__list-content-item"}).get_text()
+	series_tl = soup.find("section", {'data-testid': "Storyline"}).find("span", {'class': "ipc-metadata-list-item__list-content-item"})
 
 	embed=discord.Embed(title=series_title, url=link, description=series_description, color=0xdeb522)
 	embed.set_author(name="IMDB", url=link, icon_url=r"https://static-s.aa-cdn.net/img/ios/342792525/42b815c1b75b4bcb107806c6eb3f0fb3?v=1")
@@ -210,7 +210,8 @@ async def imdb_series_embed(link):
 	if(series_creators):
 		embed.add_field(name="Creators", value=series_creators, inline=False)
 	embed.add_field(name="Stars", value=series_stars, inline=False)
-	embed.add_field(name="Tagline", value=series_tl, inline=False)
+	if(series_tl):
+		embed.add_field(name="Tagline", value=series_tl, inline=False)
 	if(soup_orignal_title):
 		embed.set_footer(text=soup_orignal_title.get_text())
 	return(embed)
