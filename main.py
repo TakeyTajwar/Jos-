@@ -147,6 +147,7 @@ async def imdb_film_embed(link):
 	film_director = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
 	film_writers = str([item.get_text() for item in soup_credits[1].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
 	film_stars = str([item.get_text() for item in soup_credits[2].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	film_keywords = soup.find("div", {'data-testid': "storyline-plot-keywords"})
 	film_tl = soup.find("section", {'data-testid': "Storyline"}).find("span", {'class': "ipc-metadata-list-item__list-content-item"}).get_text()
 
 	embed=discord.Embed(title=film_title, url=link, description=film_description, color=0xdeb522)
@@ -158,6 +159,10 @@ async def imdb_film_embed(link):
 	embed.add_field(name="Director", value=film_director, inline=False)
 	embed.add_field(name="Writers", value=film_writers, inline=False)
 	embed.add_field(name="Stars", value=film_stars, inline=False)
+	if(film_keywords):
+		film_keywords = film_keywords.findAll("a", {'class': "ipc-chip ipc-chip--on-base"})
+		film_keywords = [item.get_text() for item in film_keywords]
+		embed.add_field(name="Keywords", value=film_keywords)
 	embed.add_field(name="Tagline", value=film_tl, inline=False)
 	return(embed)
 
@@ -186,16 +191,14 @@ async def imdb_series_embed(link):
 	series_seasons = soup.find("select", {'id': "browse-episodes-season"})
 	series_duration = soup.find("div", {'class': r"TitleBlock__TitleMetaDataContainer-sc-1nlhx7j-2 hWHMKr"}).findChildren("li", recursive=True)[-1].get_text()
 	series_language = soup.find("li", {'data-testid': "title-details-languages"}).find("a").get_text()
-	try:
-		series_genres = [item.get_text() for item in soup_genres.findAll('a')]
-	except:
-		series_genres = [item.get_text() for item in soup_genres.findAll('a')]
+	series_genres = [item.get_text() for item in soup_genres.findAll('a')]
 	if(len(soup_credits)>1):
 		series_creators = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
 		series_stars = str([item.get_text() for item in soup_credits[1].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
 	else:
 		series_creators = None
 		series_stars = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
+	series_keywords = soup.find("div", {'data-testid': "storyline-plot-keywords"})
 	series_tl = soup.find("section", {'data-testid': "Storyline"}).find("span", {'class': "ipc-metadata-list-item__list-content-item"})
 
 	embed=discord.Embed(title=series_title, url=link, description=series_description, color=0xdeb522)
@@ -210,10 +213,14 @@ async def imdb_series_embed(link):
 	if(series_creators):
 		embed.add_field(name="Creators", value=series_creators, inline=False)
 	embed.add_field(name="Stars", value=series_stars, inline=False)
-	if(series_tl):
-		embed.add_field(name="Tagline", value=series_tl, inline=False)
+	if(series_keywords):
+		series_keywords = series_keywords.findAll("a", {'class': "ipc-chip ipc-chip--on-base"})
+		series_keywords = [item.get_text() for item in series_keywords]
+		embed.add_field(name="Keywords", value=series_keywords)
 	if(soup_orignal_title):
 		embed.set_footer(text=soup_orignal_title.get_text())
+	if(series_tl):
+		embed.add_field(name="Tagline", value=series_tl.to_text(), inline=False)
 	return(embed)
 
 
