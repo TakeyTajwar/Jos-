@@ -80,6 +80,12 @@ async def on_message(message):
 			await send_embed(await imdb_series_embed(msg), 911794548001349663)
 			await message.delete()
 			return
+	
+	elif(chn_id == 911795443875328071):
+		if(msg.startswith(r"https://www.goodreads.com/book/")):
+			await send_embed(await goodreads_book_embed(msg), 911795443875328071)
+			await message.delete()
+			return
 
 
 
@@ -224,6 +230,27 @@ async def imdb_series_embed(link):
 		embed.add_field(name="Tagline", value=series_tl.to_text(), inline=False)
 	return(embed)
 
+# Goodreads book embed
+async def goodreads_book_embed(link):
+	# bs4
+	soup = BeautifulSoup(requests.get(link).content, 'html.parser')
+
+	book_title = soup.find('h1', {'id': "bookTitle"}).get_text()
+	book_description = soup.find('div', {'id': "description"}).get_text()
+	book_poster = soup.find('img', {'id': "coverImage"})['src']
+	book_author = soup.find('span', {'itemprop': "name"}).get_text()
+	book_page_count = soup.find('div', {'id': "details"}).find('span', {'itemprop': "numberOfPages"}).get_text()
+	book_publish_date = soup.find('div', {'id': "details"}).findAll('div', {'class': "row"})[1].get_text()
+
+	# embed
+	embed=discord.Embed(title=book_title, url=link, description=book_description, color=0xf4f1ea)
+	embed.set_thumbnail(url=book_poster)
+	embed.set_author(name="goodreads", url=link, icon_url=r"https://is4-ssl.mzstatic.com/image/thumb/Purple116/v4/9f/2c/2a/9f2c2ab6-6b14-067e-b339-75cb974ae364/source/256x256bb.jpg")
+	embed.add_field(name="Author", value=book_author, inline=False)
+	embed.add_field(name="Page Count", value=book_page_count, inline=False)
+	embed.add_field(name="Publish", value=book_publish_date, inline=False)
+
+	return(embed)
 
 
 ### Stats Functions ###
