@@ -163,7 +163,8 @@ async def imdb_film_embed(link):
 		film_keywords = film_keywords.findAll("a", {'class': "ipc-chip ipc-chip--on-base"})
 		film_keywords = [item.get_text() for item in film_keywords]
 		embed.add_field(name="Keywords", value=film_keywords)
-	embed.add_field(name="Tagline", value=film_tl, inline=False)
+	if(film_tl):
+		embed.add_field(name="Tagline", value=film_tl, inline=False)
 	return(embed)
 
 # IMDB series embed
