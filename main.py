@@ -86,6 +86,17 @@ async def on_message(message):
 			await send_embed(await goodreads_book_embed(msg), 911795443875328071)
 			await message.delete()
 			return
+	
+	elif(chn_id == 912826166837149758):
+		if(msg.startswith(r"https://voca.ro/")):
+			m = re.search(r'(?P<link>https://voca.ro/\w+) ?(?P<title>.+)?', msg)
+			if(m.group('link')):
+				v = await vocaroo_embed(m.group('link'), m.group('title'))
+				chn = client.get_channel(chn_id)
+				await chn.send(embed=v[0])
+				await chn.send(file=discord.File(v[1]))
+				os.remove(v[1])
+			await message.delete()
 
 
 
@@ -227,7 +238,7 @@ async def imdb_series_embed(link):
 	if(soup_orignal_title):
 		embed.set_footer(text=soup_orignal_title.get_text())
 	if(series_tl):
-		embed.add_field(name="Tagline", value=series_tl.to_text(), inline=False)
+		embed.add_field(name="Tagline", value=series_tl.get_text(), inline=False)
 	return(embed)
 
 # Goodreads book embed
@@ -251,6 +262,29 @@ async def goodreads_book_embed(link):
 	embed.add_field(name="Publish", value=book_publish_date, inline=False)
 
 	return(embed)
+
+# vocaroo embed
+async def vocaroo_embed(link, title):
+	# bs4
+	soup = BeautifulSoup(requests.get(link).content, 'html.parser')
+
+	link_t = link.replace('https://voca.ro/', '')
+	download_link = f"https://media1.vocaroo.com/mp3/{link_t}"
+	if(title):
+		path = f"Downloads/{title}.mp3"
+	else:
+		path = f"Downloads/{link_t}.mp3"
+		title = "Untitled"
+	doc = requests.get(download_link)
+	with open(path, 'wb') as f:
+		f.write(doc.content)
+	icon = soup.find('link', {'rel': "icon"})['href']
+
+
+	# embed
+	embed=discord.Embed(title=title, url=link, color=0xcaff70, description=f"[Download]({download_link})")
+	embed.set_author(name="Vocaroo", url=link, icon_url=icon)
+	return(embed, path)
 
 
 ### Stats Functions ###
