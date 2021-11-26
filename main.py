@@ -8,6 +8,7 @@ from keep_alive import keep_alive
 
 # useful libraries
 import re # regular expression
+import json
 
 # web
 import requests
@@ -55,7 +56,7 @@ async def on_message(message):
 
 	chn_id = message.channel.id
 
-	print(msg)
+	print("Msg: " + msg)
 
 	await check_for_stats(msg)
 	
@@ -300,6 +301,18 @@ async def update_stats():
 	# await client.get_channel(911828737270616164).send(stats_msg)
 	stats_message = await client.get_channel(911828737270616164).fetch_message(db['stats_msg_id'])
 	await stats_message.edit(content=stats_msg)
+
+
+
+### Watch2Gether Functions###
+# Add video to "videos we can watch together"
+async def add_to_vw2g(link):
+	w2g_room = r"https://w2g.tv/rooms/gxdx-lj7zpejb8n9atou6nt?lang=en"
+	
+	add_video = {
+        "w2g_api_key": os.getenv('W2G_API_KEY'),
+        "add_items": [{"url": "https://www.youtube.com/watch?v=dMH0bHeiRNg"}]
+    }
 
 
 
