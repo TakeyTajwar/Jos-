@@ -88,7 +88,7 @@ async def on_message(message):
 			await message.delete()
 			return
 	
-	elif(chn_id == 912826166837149758):
+	elif(chn_id == 912826166837149758): # audio-clips
 		if(msg.startswith(r"https://voca.ro/")):
 			m = re.search(r'(?P<link>https://voca.ro/\w+) ?(?P<title>.+)?', msg)
 			if(m.group('link')):
@@ -97,6 +97,13 @@ async def on_message(message):
 				await chn.send(embed=v[0])
 				await chn.send(file=discord.File(v[1]))
 				os.remove(v[1])
+			await message.delete()
+	
+	elif(chn_id == 913560352594210826): # videos
+		if(msg.startswith(r"https://www.youtube.com/watch?v=")):
+			embed = await add_to_vw2g(msg)
+			chn = client.get_channel(chn_id)
+			await chn.send(embed=embed)
 			await message.delete()
 
 
@@ -307,12 +314,46 @@ async def update_stats():
 ### Watch2Gether Functions###
 # Add video to "videos we can watch together"
 async def add_to_vw2g(link):
-	w2g_room = r"https://w2g.tv/rooms/gxdx-lj7zpejb8n9atou6nt?lang=en"
+	# add item to w2g playlist
+	streamkey = r"lj7zpejb8n9atou6nt" # the key of our room
+	w2g_pl = f"https://w2g.tv/rooms/{streamkey}/playlists/current/playlist_items/sync_update" # link to the playlist
 	
-	add_video = {
-        "w2g_api_key": os.getenv('W2G_API_KEY'),
-        "add_items": [{"url": "https://www.youtube.com/watch?v=dMH0bHeiRNg"}]
+	headers = {
+		'Accept': 'application/json',
+        'Content-Type': 'application/json'
+	}
+
+	body = {
+        "w2g_api_key": os.getenv('W2G_API_KEY'), # the api key
+        "add_items": [{"url": link}] # link to the youtube video that will be added
     }
+	body = json.dumps(body) # coverts body into json string
+
+	r = requests.post(w2g_pl, data=body, headers=headers) # sends the data to w2g
+
+	print(r)
+
+	if(not(r.ok)):
+		embed=discord.Embed(title="Failed", url=link, description=str(r), color=0x050000)
+		return(embed)
+
+	# get data
+	oembed_link = f"https://www.youtube.com/oembed?url={link}&format=json"
+
+	yt_data = requests.get(oembed_link).json()
+	print(yt_data)
+
+	title = yt_data['title']
+	description=""
+	author = yt_data['author_name']
+	img = yt_data['thumbnail_url']
+
+	# embed
+	embed=discord.Embed(title=title, url=link, description=description, color=0xff0000)
+	embed.set_thumbnail(url=img)
+	embed.set_author(name='Youtube', url=link, icon_url=r'https://icon-library.com/images/youtube-icon/youtube-icon-15.jpg')
+	embed.set_footer(text=f"Author:	{author}")
+	return(embed)
 
 
 
