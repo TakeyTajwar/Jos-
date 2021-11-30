@@ -165,6 +165,10 @@ async def imdb_film_embed(link):
 	film_icon = soup_poster['src']
 	film_year = soup.find("a", {'class': r"ipc-link ipc-link--baseAlt ipc-link--inherit-color TitleBlockMetaData__StyledTextLink-sc-12ein40-1 rgaOW"}).get_text()
 	film_duration = soup.find("div", {'class': r"TitleBlock__TitleMetaDataContainer-sc-1nlhx7j-2 hWHMKr"}).findChildren("li", recursive=True)[-1].get_text()
+	film_language = soup.find("li", {'data-testid': "title-details-languages"})
+	if(film_language):
+		language = "Languages" if len(film_language)>1 else "Language"
+		film_language = str([item.get_text() for item in film_language.findAll('a')])
 	try:
 		film_genres = [item.get_text() for item in soup_genres.findAll('a')]
 	except:
@@ -180,6 +184,8 @@ async def imdb_film_embed(link):
 	embed.set_thumbnail(url=film_icon)
 	embed.add_field(name="Year", value=film_year, inline=False)
 	embed.add_field(name="Duration", value=film_duration, inline=False)
+	if(film_language):
+		embed.add_field(name=language, value=film_language, inline=False)
 	embed.add_field(name="Genres", value=film_genres, inline=False)
 	embed.add_field(name="Director", value=film_director, inline=False)
 	embed.add_field(name="Writers", value=film_writers, inline=False)
@@ -216,7 +222,10 @@ async def imdb_series_embed(link):
 	series_year = soup.find("a", {'class': r"ipc-link ipc-link--baseAlt ipc-link--inherit-color TitleBlockMetaData__StyledTextLink-sc-12ein40-1 rgaOW"}).get_text()
 	series_seasons = soup.find("select", {'id': "browse-episodes-season"})
 	series_duration = soup.find("div", {'class': r"TitleBlock__TitleMetaDataContainer-sc-1nlhx7j-2 hWHMKr"}).findChildren("li", recursive=True)[-1].get_text()
-	series_language = soup.find("li", {'data-testid': "title-details-languages"}).find("a").get_text()
+	series_language = soup.find("li", {'data-testid': "title-details-languages"})
+	if(series_language):
+		language = "Languages" if len(series_language)>1 else "Language"
+		series_language = str([item.get_text() for item in series_language.findAll('a')])
 	series_genres = [item.get_text() for item in soup_genres.findAll('a')]
 	if(len(soup_credits)>1):
 		series_creators = str([item.get_text() for item in soup_credits[0].findAll('a')]).replace('[', '').replace(']', '').replace('\'', '')
@@ -234,7 +243,8 @@ async def imdb_series_embed(link):
 	if(series_seasons):
 		embed.add_field(name="Seasons", value=series_seasons['aria-label'], inline=False)
 	embed.add_field(name="Duration", value=series_duration, inline=False)
-	embed.add_field(name="Language", value=series_language, inline=False)
+	if(series_language):
+		embed.add_field(name=language, value=series_language, inline=False)
 	embed.add_field(name="Genres", value=series_genres, inline=False)
 	if(series_creators):
 		embed.add_field(name="Creators", value=series_creators, inline=False)
