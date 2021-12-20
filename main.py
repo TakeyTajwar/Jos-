@@ -100,7 +100,7 @@ async def on_message(message):
 			await message.delete()
 	
 	elif(chn_id == 913560352594210826): # videos
-		if(msg.startswith(r"https://www.youtube.com/watch?v=")):
+		if(msg.startswith(r"https://www.youtube.com/watch?v=") or msg.startswith(r"https://youtu.be/")):
 			embed = await add_to_vw2g(msg)
 			chn = client.get_channel(chn_id)
 			await chn.send(embed=embed)
