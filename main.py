@@ -149,13 +149,13 @@ async def imdb_film_embed(link):
 	# bs4
 	soup = BeautifulSoup(requests.get(link).content, "html.parser")
 	
-	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-hdn81t-0 iGxbgr"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
+	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-sc-hdn81t-0 hzbDAm"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
 	
 	soup_poster = soup.find("div", {'class': "ipc-poster ipc-poster--baseAlt ipc-poster--dynamic-width Poster__CelPoster-sc-6zpm25-0 kPdBKI celwidget ipc-sub-grid-item ipc-sub-grid-item--span-2"}).find("img")
 	if(soup_poster == None):
 		soup.find("div", {'class': "Hero__MediaContainer__NoVideo-kvkd64-7 ytFvJ"}).find("img")
 	
-	soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"})
+	soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-sc-cum89p-4 cDpOeC"})
 	if(soup_genres == None):
 		soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__OffsetChipList-cum89p-5 dMcpOf"})
 
@@ -181,7 +181,7 @@ async def imdb_film_embed(link):
 
 	embed=discord.Embed(title=film_title, url=link, description=film_description, color=0xdeb522)
 	embed.set_author(name="IMDB", url=link, icon_url=r"https://static-s.aa-cdn.net/img/ios/342792525/42b815c1b75b4bcb107806c6eb3f0fb3?v=1")
-	embed.set_thumbnail(url=film_icon)
+	embed.set_image(url=film_icon)
 	embed.add_field(name="Year", value=film_year, inline=False)
 	embed.add_field(name="Duration", value=film_duration, inline=False)
 	if(film_language):
@@ -203,13 +203,13 @@ async def imdb_series_embed(link):
 	# bs4
 	soup = BeautifulSoup(requests.get(link).content, "html.parser")
 	
-	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-hdn81t-0 iGxbgr"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
+	soup_credits = soup.find("div", {'class': r"PrincipalCredits__PrincipalCreditsPanelWideScreen-sc-hdn81t-0 hzbDAm"}).findAll("div", {'class': r"ipc-metadata-list-item__content-container"})
 	
 	soup_poster = soup.find("div", {'class': "ipc-poster ipc-poster--baseAlt ipc-poster--dynamic-width Poster__CelPoster-sc-6zpm25-0 kPdBKI celwidget ipc-sub-grid-item ipc-sub-grid-item--span-2"}).find("img")
 	if(soup_poster == None):
 		soup.find("div", {'class': "Hero__MediaContainer__NoVideo-kvkd64-7 ytFvJ"}).find("img")
 	
-	soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-cum89p-4 gtBDBL"})
+	soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__GenresChipList-sc-cum89p-4 cDpOeC"})
 	if(soup_genres == None):
 		soup_genres = soup.find("div", {'class': r"ipc-chip-list GenresAndPlot__OffsetChipList-cum89p-5 dMcpOf"})
 	
@@ -238,7 +238,7 @@ async def imdb_series_embed(link):
 
 	embed=discord.Embed(title=series_title, url=link, description=series_description, color=0xdeb522)
 	embed.set_author(name="IMDB", url=link, icon_url=r"https://static-s.aa-cdn.net/img/ios/342792525/42b815c1b75b4bcb107806c6eb3f0fb3?v=1")
-	embed.set_thumbnail(url=series_icon)
+	embed.set_image(url=series_icon)
 	embed.add_field(name="Year", value=series_year, inline=False)
 	if(series_seasons):
 		embed.add_field(name="Seasons", value=series_seasons['aria-label'], inline=False)
@@ -273,7 +273,7 @@ async def goodreads_book_embed(link):
 
 	# embed
 	embed=discord.Embed(title=book_title, url=link, description=book_description, color=0xf4f1ea)
-	embed.set_thumbnail(url=book_poster)
+	embed.set_image(url=book_poster)
 	embed.set_author(name="goodreads", url=link, icon_url=r"https://is4-ssl.mzstatic.com/image/thumb/Purple116/v4/9f/2c/2a/9f2c2ab6-6b14-067e-b339-75cb974ae364/source/256x256bb.jpg")
 	embed.add_field(name="Author", value=book_author, inline=False)
 	embed.add_field(name="Page Count", value=book_page_count, inline=False)
@@ -360,7 +360,7 @@ async def add_to_vw2g(link):
 
 	# embed
 	embed=discord.Embed(title=title, url=link, description=description, color=0xff0000)
-	embed.set_thumbnail(url=img)
+	embed.set_image(url=img)
 	embed.set_author(name='Youtube', url=link, icon_url=r'https://icon-library.com/images/youtube-icon/youtube-icon-15.jpg')
 	embed.set_footer(text=f"Author:	{author}")
 	return(embed)
